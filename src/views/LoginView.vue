@@ -1,5 +1,10 @@
 <script setup>
 import IconGithub from "@/components/icons/IconGithub.vue";
+import { authApi as authStore } from "@/services/api.js";
+
+const handleLogin = () => {
+  authStore.login();
+};
 </script>
 
 <template>
@@ -18,7 +23,7 @@ import IconGithub from "@/components/icons/IconGithub.vue";
         View your starred repositories and commit statistics
       </p>
       <button
-        @click="console.log('login')"
+        @click="handleLogin"
         class="flex w-full py-4 px-6 mt-4 items-center justify-center gap-2 bg-gray-900 text-white rounded-lg text-sm font-bold github-login-btn"
       >
         <IconGithub class="w-5 h-5" />
