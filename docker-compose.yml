@@ -46,10 +46,26 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - ./server:/app
-      - /app/node_modules
-    command: npm run dev
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Database migrations
+  migrate:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: github-auth-migrate
+    env_file:
+      - ./server/.env
+    depends_on:
+      backend:
+        condition: service_healthy
+    command: npm run migrate
+    restart: "no"
 
   # Frontend
   frontend:
@@ -61,12 +77,11 @@ services:
       - "5173:5173"
     env_file:
       - .env.local
-    volumes:
-      - .:/app
-      - /app/node_modules
-    command: npm run dev
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   postgres_data:
