@@ -32,7 +32,7 @@ app.get("/health", (req, res) => {
 });
 
 // Error handling middleware
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   console.error("Error:", err);
 
   const statusCode = err.statusCode || 500;
