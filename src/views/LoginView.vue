@@ -1,9 +1,38 @@
 <script setup>
 import IconGithub from "@/components/icons/IconGithub.vue";
-import { authApi as authStore } from "@/services/api.js";
+import { authApi } from "@/services/api.js";
+import { ref, onMounted } from "vue";
+import { useRouter, useRoute } from "vue-router";
+
+const router = useRouter();
+const route = useRoute();
+const errorMessage = ref("");
+
+onMounted(() => {
+  // Check for error in URL query params
+  if (route.query.error) {
+    const errors = {
+      no_code: "No authorization code received from GitHub",
+      auth_failed: "Authentication failed. Please try again.",
+    };
+    errorMessage.value =
+      errors[route.query.error] || "An error occurred during authentication";
+  }
+
+  // Check if already authenticated
+  authApi
+    .getCurrentUser()
+    .then(() => {
+      router.push("/dashboard");
+    })
+    .catch(() => {
+      // User not authenticated, stay on login page
+      console.log("User not authenticated");
+    });
+});
 
 const handleLogin = () => {
-  authStore.login();
+  authApi.login();
 };
 </script>
 
@@ -24,27 +53,18 @@ const handleLogin = () => {
       </p>
       <button
         @click="handleLogin"
-        class="flex w-full py-4 px-6 mt-4 items-center justify-center gap-2 bg-gray-900 text-white rounded-lg text-sm font-bold github-login-btn"
+        class="flex w-full py-4 px-6 mt-4 items-center justify-center gap-2 bg-gray-900 text-white rounded-lg text-sm font-bold transition-all duration-300 hover:bg-gray-700 focus:outline-none focus:ring-0 focus:ring-gray-300 hover:-translate-y-0.5 hover:shadow-2xl active:translate-y-0"
       >
         <IconGithub class="w-5 h-5" />
         Sign in with GitHub
       </button>
+
+      <p
+        class="mt-4 text-red-400 p-3 bg-red-100 rounded-md"
+        v-if="errorMessage"
+      >
+        {{ errorMessage }}
+      </p>
     </div>
   </div>
 </template>
-
-<style scoped>
-.github-login-btn {
-  transition: all 0.3s ease;
-}
-
-.github-login-btn:hover {
-  background: #1a1e22;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
-
-.github-login-btn:active {
-  transform: translateY(0);
-}
-</style>

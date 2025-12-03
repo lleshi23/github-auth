@@ -5,7 +5,6 @@ export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null,
     isAuthenticated: false,
-    isLoading: false,
     error: null,
   }),
 
@@ -15,7 +14,6 @@ export const useAuthStore = defineStore("auth", {
     },
 
     async fetchCurrentUser() {
-      this.isLoading = true;
       this.error = null;
 
       try {
@@ -28,8 +26,16 @@ export const useAuthStore = defineStore("auth", {
         this.user = null;
         this.error = error.response?.data?.error || "Failed to fetch user";
         throw error;
-      } finally {
-        this.isLoading = false;
+      }
+    },
+
+    async logout() {
+      try {
+        await authApi.logout();
+        this.user = null;
+        this.isAuthenticated = false;
+      } catch (error) {
+        console.error("Logout error:", error);
       }
     },
   },

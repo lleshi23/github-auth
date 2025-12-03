@@ -13,6 +13,16 @@ const api = axios.create({
 
 // Auth endpoints
 export const authApi = {
-  login: () => api.get(`${API_BASE_URL}/auth/github`),
+  login: () => {
+    window.location.href = `${API_BASE_URL}/auth/github`;
+  },
   getCurrentUser: () => api.get("/auth/me"),
+  logout: () => api.post("/auth/logout"),
+};
+
+// Repository endpoints
+export const repositoryApi = {
+  getStarredRepos: () => api.get("/repositories/starred"),
+
+  getAllCommits: () => api.get("/repositories/commits"),
 };
